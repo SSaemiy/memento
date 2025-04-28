@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+import openai
 import whisper
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
@@ -47,7 +47,7 @@ class GptApi:
     def __init__(self):
         self.client = self.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    def RequestResponse(self, emotion, text):
+    def RequestAdvice(self, emotion, text):
         reponse = client.ChatCompletions.create(
             model = "gpt 모델",
             messages= [
