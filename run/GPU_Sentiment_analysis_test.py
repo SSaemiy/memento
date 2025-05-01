@@ -1,14 +1,18 @@
 import os
+from dotenv import load_dotenv
 import openai
 import whisper
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn.functional as F
 
+load_dotenv()
+
 class VoiceToText:
     def __init__(self, device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
         self.whisper_model = whisper.load_model("small").to(device) 
         
+    # 음성 파일 -> 텍스트 파일 변환
     def transcribe_audio(self, file_path):
         print(f"[INFO] '{file_path}' 파일을 텍스트로 변환 중...")
         result = self.whisper_model.transcribe(file_path)
@@ -30,6 +34,7 @@ class SentiAnalysis:
             9: '짜증남'
         }
         
+    #텍스트에서 감정 분석
     def analyze_emotion(self, content):
 
         inputs = self.tokenizer(content, return_tensors="pt", truncation=True, padding=True).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))  # ➤ 입력도 GPU로
@@ -41,15 +46,16 @@ class SentiAnalysis:
         pred_label = max(filtered_probs, key=filtered_probs.get)
 
         print(f"[EMOTION] 예측 감정: {self.selected_labels[pred_label]} (score: {filtered_probs[pred_label]:.2f})")
-        return self.selected_labels[pred_label], filtered_probs[pred_label]
+        return self.selected_labels[pred_label] #감정 분석 결과만 리턴
 
 class GptApi:
     def __init__(self):
-        self.client = self.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        openai.api_key = os.getenv("OPENAI_API_KEY")
 
+    #LLM 호출해서 답변 받기
     def RequestAdvice(self, emotion, text):
-        reponse = client.ChatCompletions.create(
-            model = "gpt 모델",
+        reponse = openai.chat.completions.create(
+            model = "gpt-4o",
             messages= [
                 {
                     "role":"system",
@@ -62,7 +68,8 @@ class GptApi:
                         f"{text}를 읽고 {emotion}의 감정에 맞추어 150자 이내로\
                             {text}를 간략하게 2문장 이내로 요약하고 응원하는 말을 작성해주세요."
                 }
-            ]
+            ],
+            max_tokens = 50
         )
         return(reponse.choices[0].message.content)
 
@@ -71,7 +78,11 @@ if __name__ == "__main__":
     audio_file = "test_5m.mp3"
 
     voice_to_text = VoiceToText()
-    senti_Analysis = SentiAnalysis()
+    senti_analysis = SentiAnalysis()
+    gpt_advice = GptApi()
     
     content = voice_to_text.transcribe_audio(audio_file)
-    senti_Analysis.analyze_emotion(content)
+    emotion = senti_analysis.analyze_emotion(content)
+    
+    advice = gpt_advice.RequestAdvice(emotion, content)
+    print(f"오늘의 조언: {advice}")
