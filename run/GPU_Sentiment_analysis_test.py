@@ -66,10 +66,10 @@ class GptApi:
                     "role":"user",
                     "content":
                         f"{text}를 읽고 {emotion}의 감정에 맞추어 150자 이내로\
-                            {text}를 간략하게 2문장 이내로 요약하고 응원하는 말을 작성해주세요."
+                            {text}를 간략하게 1문장 이내로 요약하고 응원하는 말을 작성해주세요."
                 }
             ],
-            max_tokens = 50
+            max_tokens = 150
         )
         return(reponse.choices[0].message.content)
 
