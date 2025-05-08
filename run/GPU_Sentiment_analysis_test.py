@@ -65,7 +65,8 @@ class GptApi:
                 {
                     "role":"user",
                     "content":
-                        f"{text}를 읽고 {text}를 간략하게 1문장 이내로 요약해주세요.\
+                        f"{text}가 비어있거나 요약할 문장이 없는 경우 바빠서 일기를 쓰지 못했던 상황을 가정하고 응원하는 말을 작성해주세요.\
+                        {text}에 요약할 문장이 있는 경우 {text}를 읽고 {text}를 간략하게 1문장 이내로 요약해주세요.\
                         요약한 문장은 ~하셨군요 로 끝맺어야합니다.\
                         {emotion}의 감정에 맞추어 사용자를 응원하는 말을 150자 이내로 작성해주세요."
                 }
@@ -76,14 +77,17 @@ class GptApi:
 
 # 실행부
 if __name__ == "__main__":
-    audio_file = "test_5m.mp3"
+    #audio_file = "test_5m.mp3"
 
-    voice_to_text = VoiceToText()
-    senti_analysis = SentiAnalysis()
+    #voice_to_text = VoiceToText()
+    #senti_analysis = SentiAnalysis()
     gpt_advice = GptApi()
     
-    content = voice_to_text.transcribe_audio(audio_file)
-    emotion = senti_analysis.analyze_emotion(content)
+    #content = voice_to_text.transcribe_audio(audio_file)
+    #emotion = senti_analysis.analyze_emotion(content)
+    
+    content = "오늘 설빙에서 블루베리 요거트를 처음 사서 먹었는데 짱 맛있었다. 애플 망고랑은 또 다른 맛이다. 밑에 깔려있던 시리얼이 일품이었다."
+    emotion = "기쁨"
     
     advice = gpt_advice.RequestAdvice(emotion, content)
     print(f"오늘의 조언: {advice}")
