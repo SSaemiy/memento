@@ -27,11 +27,11 @@ class SentiAnalysis:
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name).to(device)  # ➤ GPU로 이동
         self.model.eval()
         self.selected_labels = {
-            0: '기쁨(행복한)',
-            5: '일상적인',
-            7: '슬픔(우울한)',
-            8: '힘듦(지침)',
-            9: '짜증남'
+            0: '기쁨',
+            5: '중립',
+            7: '슬픔',
+            8: '힘듦',
+            9: '화남'
         }
         
     #텍스트에서 감정 분석
@@ -65,10 +65,12 @@ class GptApi:
                 {
                     "role":"user",
                     "content":
-                        f"{text}가 비어있거나 요약할 문장이 없는 경우 바빠서 일기를 쓰지 못했던 상황을 가정하고 응원하는 말을 작성해주세요.\
+                        f"{text}가 비어있거나 문장을 요약할 수 없을 경우 바빠서 일기를 쓰지 못했던 상황을 가정하고 응원하는 말을 작성해주세요.\
+                        {text}가 한 문장일 경우 요약하지 않고 {text}와 {emotion}에 맞추어 응원하고 공감하는 말을 150자 이내로 작성합니다.\
                         {text}에 요약할 문장이 있는 경우 {text}를 읽고 {text}를 간략하게 1문장 이내로 요약해주세요.\
                         요약한 문장은 ~하셨군요 로 끝맺어야합니다.\
-                        {emotion}의 감정에 맞추어 사용자를 응원하는 말을 150자 이내로 작성해주세요."
+                        {emotion}의 감정에 맞추어 사용자를 응원하는 말을 150자 이내로 작성해주세요.\
+                        답변에는 줄넘김이 없어야합니다."
                 }
             ],
             max_tokens = 150
@@ -83,11 +85,13 @@ if __name__ == "__main__":
     #senti_analysis = SentiAnalysis()
     gpt_advice = GptApi()
     
+    content = "화난다."
     #content = voice_to_text.transcribe_audio(audio_file)
+
+    emotion = "화남"
     #emotion = senti_analysis.analyze_emotion(content)
     
-    content = "오늘 설빙에서 블루베리 요거트를 처음 사서 먹었는데 짱 맛있었다. 애플 망고랑은 또 다른 맛이다. 밑에 깔려있던 시리얼이 일품이었다."
-    emotion = "기쁨"
-    
+    print(f"일기 내용 : {content}")
+
     advice = gpt_advice.RequestAdvice(emotion, content)
     print(f"오늘의 조언: {advice}")
